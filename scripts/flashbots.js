@@ -13,7 +13,7 @@ async function main() {
 	await fakeNFT.deployed();
 	console.log("FakeNFT contract's address:", fakeNFT.address);
 
-	// Create an Alchemy Websocket Provider
+	// Create an Alchemy Websocket Provider; using this bc we want to listen on every block, as no miners on testnet are flashbot miners; have to continually send bundle till it's included
 	const provider = new ethers.providers.WebSocketProvider(
 		process.env.ALCHEMY_WEBSOCKET_URL,
 		'goerli'
@@ -30,6 +30,7 @@ async function main() {
 		'goerli'
 	);
 
+	// Provider is "listening" for block events
 	provider.on('block', async (blockNumber) => {
 		console.log('Block Number:', blockNumber);
 
@@ -38,25 +39,18 @@ async function main() {
 			[
 				{
 					transaction: {
-						// ChainId for the Goerli network
-						chainId: 5,
-						// EIP-1559
-						type: 2,
-						// Value of 1 FakeNFT
-						value: ethers.utils.parseEther('0.01'),
-						// Address of the FakeNFT
-						to: fakeNFT.address,
-						// In the data field, we pass the function selctor of the mint function
-						data: fakeNFT.interface.getSighash('mint()'),
-						// Max gas fees you are willing to pay
-						maxFeePerGas: BigNumber.from(10).pow(9).mul(3),
-						// Max Priority gas fees you are willing to pay
-						maxPriorityFeePerGas: BigNumber.from(10).pow(9).mul(2),
+						chainId: 5, // Goerli chain ID
+						type: 2, // EIP-1559 gas model
+						value: ethers.utils.parseEther('0.01'), // Value of 1 FakeNFT
+						to: fakeNFT.address, // Address of the FakeNFT
+						data: fakeNFT.interface.getSighash('mint()'), // We pass the function selector of the mint function
+						maxFeePerGas: BigNumber.from(10).pow(9).mul(3), // Max gas fees willing to pay (3 Gwei)
+						maxPriorityFeePerGas: BigNumber.from(10).pow(9).mul(2), // Max Priority gas fees willing to pay (2 Gwei)
 					},
 					signer: signer,
 				},
 			],
-			blockNumber + 1
+			blockNumber + 1 // we want txn mined in the next block, so we add 1
 		);
 
 		// If an error is present, log that hoe
