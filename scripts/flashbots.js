@@ -1,4 +1,3 @@
-const hre = require('hardhat');
 const {
 	FlashbotsBundleProvider,
 } = require('@flashbots/ethers-provider-bundle');
@@ -44,8 +43,8 @@ async function main() {
 						value: ethers.utils.parseEther('0.01'), // Value of 1 FakeNFT
 						to: fakeNFT.address, // Address of the FakeNFT
 						data: fakeNFT.interface.getSighash('mint()'), // We pass the function selector of the mint function
-						maxFeePerGas: BigNumber.from(10).pow(9).mul(3), // Max gas fees willing to pay (3 Gwei)
-						maxPriorityFeePerGas: BigNumber.from(10).pow(9).mul(2), // Max Priority gas fees willing to pay (2 Gwei)
+						maxFeePerGas: BigNumber.from(10).pow(9).mul(5), // Max gas fees willing to pay (3 Gwei)
+						maxPriorityFeePerGas: BigNumber.from(10).pow(9).mul(5), // Max Priority gas fees willing to pay (2 Gwei)
 					},
 					signer: signer,
 				},
@@ -60,9 +59,4 @@ async function main() {
 	});
 }
 
-main()
-	.then(() => process.exit(0))
-	.catch((error) => {
-		console.error(error);
-		process.exit(1);
-	});
+main();
